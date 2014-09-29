@@ -1,0 +1,218 @@
+#Karl Meyer
+#09.29.14
+#CMDA 3654
+
+#Inclass4 Part 2
+
+"""What does the code below do? Run the code in iPython.
+For each line of code, add an explanation
+through a comment."""
+
+#PART I
+
+print "I will now count my chickens:"
+#prints the line above
+
+print "Hens", 25 + 30 / 6
+#prints Hens and the above equation's result
+
+print "Roosters", 100 - 25 * 3 % 4
+#prints Roosters and the above equation's result
+
+print "Now I will count the eggs:"
+#prints the line above
+
+print 3 + 2 + 1 - 5 + 4 % 2 - 1 / 4 + 6
+#prints the above equation's result
+
+print "Is it true that 3 + 2 < 5 - 7?"
+#print Is it true that and the above equation's result
+
+print 3 + 2 < 5 - 7
+#prints the above equation's result
+
+print "What is 3 + 2?", 3 + 2
+#prints what is 3 + 2 and the above equation's result
+
+print "What is 5 - 7?", 5 - 7
+#prints what is 5-7 and the above equation's result
+
+print "Oh, that's why it's False."
+#prints Oh, that's why it's False.
+
+print "How about some more."
+#prints How about some more.
+
+print "Is it greater?", 5 > -2
+#prints Is it greater? and the above equation's result
+
+print "Is it greater or equal?", 5 >= -2
+#prints Is it greater or equal? and the above equation's result
+
+print "Is it less or equal?", 5 <= -2
+#prints Is it less or equal? and the above equation's result
+
+
+#PART II
+
+days = "Mon Tue Wed Thu Fri Sat Sun"
+#sets the variable days to the string in quotes
+
+months = "Jan\nFeb\nMar\nApr\nMay\nJun\nJul\nAug"
+#sets the variable months to the string above in quotes
+
+print "Here are the days: ", days
+#prints the variable days and thus the string it describes
+
+print "Here are the months: ", months
+#prints the variable months and thus the string it describes
+
+
+#PART III
+
+the_count = [1, 2, 3, 4, 5]
+#sets the variable the_count to the array above
+
+fruits = ['apples', 'oranges', 'pears', 'apricots']
+#sets the variable fruits to the array of strings above
+
+change = [1, 'pennies', 2, 'dimes', 3, 'quarters']
+#sets the variable change to the array of elements seen above
+
+for number in the_count:
+    print "This is count %d" % number
+#for every element in the_count it prints the text in quotes #followed by the number
+
+for fruit in fruits:
+    print "A fruit of type: %s" % fruit
+#iterates through the fruits array and prints out each element
+
+#Use %r format when you don't know
+#if the elements are strings or integers
+
+for i in change:
+    print "I got %r" % i
+#iterates through change, prints out the strings and data elements
+
+# we can also build lists, first start with an empty one
+elements = []
+
+# then use the range function to do 0 to 5 counts
+
+for i in range(0, 6):
+    print "Adding %d to the list." % i
+    # append is a function that lists understand
+    elements.append(i)
+#this for loop runs 6 times and prints the text above in quotes #grabbing the i and appending each element to the first i
+ 
+for i in elements:
+    print "Element was: %d" % i
+#for every element in the element array, this loop prints the quote #above where each element i takes the %d place and is printed out 
+
+
+#Inclass4 Part 3
+
+"""What does the code below do? Run the code in iPython.
+For each line of code, add an explanation
+through a comment."""
+
+#PART I
+
+#Use the code from Lecture14.py to create and change the 
+#'stuff' list; Then comment on each line of the code below
+#what it does, and what the result is
+
+ten_things = "Apples Oranges Crows Telephone Light Sugar"
+
+#print "Wait there are not 10 things in that list. Let's fix that."
+
+stuff = ten_things.split(' ')
+more_stuff = ["Day", "Night", "Song", "Frisbee", "Corn", "Banana", "Girl", "Boy"]
+
+#while the length of stuff isn't 10, pop the first element from #more_stuff and append it to stuff.
+
+while len(stuff) != 10:
+    next_one = more_stuff.pop()
+    print "Adding: ", next_one
+    stuff.append(next_one)
+    print "There are %d items now." % len(stuff)
+
+print "The 'stuff' list: ", stuff
+# prints the list of stuff
+
+print stuff[1]
+#prints the second element of stuff
+
+print stuff[-1] 
+#prints the last element in the list
+
+print stuff.pop()
+#pops the last element in the list
+
+print ' '.join(stuff)
+#prints the element in the list delimited by a space
+ 
+print '#'.join(stuff[3:5]) 
+#prints the third element in the list followed by the symbol # and #the fourth element in the list
+
+
+#PART II
+
+#Create comments where marked with # to explain the code below
+
+#sets the states and their acronyms equal to each other
+states = {
+    'Oregon': 'OR',
+    'Florida': 'FL',
+    'California': 'CA',
+    'New York': 'NY',
+    'Michigan': 'MI'
+}
+
+#sets city and states equal to each other
+cities = {
+    'CA': 'San Francisco',
+    'MI': 'Detroit',
+    'FL': 'Jacksonville'
+}
+
+#sets the values of the state acronym to the city
+cities['NY'] = 'New York'
+cities['OR'] = 'Portland'
+
+#prints 10 of '-'
+#prints text in quotes below and the equivalent city as created #earlier
+print '-' * 10
+print "NY State has: ", cities['NY']
+print "OR State has: ", cities['OR']
+
+#prints 10 of '-'
+#prints assigned abbreviation to the given states and the quote below
+print '-' * 10
+print "Michigan's abbreviation is: ", states['Michigan']
+print "Florida's abbreviation is: ", states['Florida']
+
+#prints 10 of '-'
+#prints the assigned number of cities as given above
+print '-' * 10
+print "Michigan has: ", cities[states['Michigan']]
+print "Florida has: ", cities[states['Florida']]
+
+#prints 10 of '-'
+#prints the states and their abbreviations
+print '-' * 10
+for state, abbrev in states.items():
+    print "%s is abbreviated %s" % (state, abbrev)
+
+#prints 10 of '-'
+#for each element in cities, the element is printed along with its abbreviation
+print '-' * 10
+for abbrev, city in cities.items():
+    print "%s has the city %s" % (abbrev, city)
+
+#for every element in states, the assigned abbreviation is printed, #along with the assigned city to that state
+print '-' * 10
+for state, abbrev in states.items():
+    print "%s state is abbreviated %s and has city %s" % (
+        state, abbrev, cities[abbrev])
+
