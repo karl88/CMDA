@@ -1,0 +1,303 @@
+#Karl Meyer
+#10.06.2014
+#CMDA 3654
+#InClass05
+
+#InClass05_1
+#1. Run iPython
+#--open the windows terminal and run iPython from the cmd line
+
+
+#2. Import modules pandas, numpy and matplotlib
+#Find out what functions each of them implement with the help of 
+#Tab Completion functionality. 
+
+import pandas
+import numpy
+import matplotlib
+pandas.<TAB>
+numpy.<TAB>
+matplotlib.<TAB>
+
+
+#3. Select 5 commands from these modules. Find a way to look for #these function #using ? and wildcards.
+
+np.CL*?
+np.Comp*?
+np.MAXD*?
+pandas.ev*?
+pandas.al*?
+
+
+#4. Use all the short-cut commands.
+
+#--holding the Ctrl key and pressing the L key clears the screen
+#--UP/DOWN arrows allow the user to scroll throught the commands #and results
+#--_i*line number* shows the user the input from the given line #number
+#--_*line number* shows the user the output from the given line #number
+
+
+#5. Run all the magic commands.
+
+%reset 
+#deletes all objects created in this session
+
+%run
+#runs a program or file
+
+%paste
+#pastes copied object
+
+%quickref
+#an enhanced interactive python quick reference card
+
+%timeit
+#can compute average time of execution for a snippet of code
+
+%hist
+#input history
+
+%pwd
+#returns current working directory
+
+%cd 
+#cd filename changes current working directory to that file
+
+%ls
+#displays all files in the current directory
+
+
+#6. Use your Inclass4_3, Part I and run snippets of code in iPython #by copy-paste.
+
+#--copied ten_things from inClass04
+
+%paste
+#--pasted into iPython
+
+ten_things
+#displays--'Apples Oranges Crown Telephone Light Sugar'
+
+
+#7. Introspect magic command %xdel, function str.split, module re 
+#and matplotlib.pylab.
+
+%xdel?
+#Delete a variable, trying to clear it from anywhere that
+#IPython's machinery has references to it. By default, this uses
+#the identity of the named object in the user namespace to remove
+#references held under other names. The object is also removed
+#from the output history.
+
+str.split?
+#Return a list of the words in the string S, using sep as the
+#delimiter string.  If maxsplit is given, at most maxsplit
+#splits are done. If sep is not specified or is None, any
+#whitespace string is a separator and empty strings are removed
+#from the result.
+
+import re
+#--import re
+
+re??
+#This module provides regular expression matching operations similar to
+#those found in Perl.  It supports both 8-bit and Unicode strings; both
+#the pattern and the strings being processed can contain null bytes and
+#characters outside the US ASCII range.
+
+#Regular expressions can contain both special and ordinary characters.
+#Most ordinary characters, like "A", "a", or "0", are the simplest
+#regular expressions; they simply match themselves.  You can
+#concatenate ordinary characters, so last matches the string 'last'.
+
+matplotlib.pylab??
+#This is a procedural interface to the matplotlib object-oriented
+#plotting library.
+
+#The following plotting commands are provided; the majority have
+#MATLAB |reg| [*]_ analogs and similar arguments.
+
+
+#8. Start pylab; build the plot on slide 10; do tab completion on #numpy.;do introspection on numpy.random; find the line about #randn. What type of numbers does it generate?
+
+a=numpy.random.randn(100)
+plot(a.cumsum())
+#--outputs a line plot that is positively sloped
+
+numpy.<TAB>
+#tab completion on numpy
+
+numpy.random??
+#introspection on numpy,random which was just used above
+
+numpy.random.randn?? 
+#gives uniformly distributed random values 
+
+
+#9. Find out what cumsum does.
+
+numpy.cumsum?? 
+#returns the cumulative sum of the elements on a given axis
+
+
+#10. How long does it take to generate 100 normally distributed #random numbers? How about 1000? How about 10,000? How did you find #that out?(hint: run magic command timeit)
+
+%timeit randn(100)
+#100000 loops, best of 3: 5.65 us per loop
+
+%timeit randn(1000)
+#10000 loops, best of 3: 46.5 us per loop
+
+%timeit randn(10000)
+#1000loops, best of 3: 451 us per loop
+
+
+
+#InClass05_2
+
+#1) Create a new ipython notebook “Inclass5_2”
+
+import numpy as np
+
+
+#2) Create two one-dimensional arrays with 5 elements of your choice. Display #arrays’ shape and type.
+
+data01=['1','2','3','4','5']
+data02=['6','7','8','9','0']
+array01=np.array(data01)
+array02=np.array(data02)
+np.shape(array01)
+np.shape(array02)
+array01.dtype
+array02.dtype
+
+#3) Do element-wise summation for the two arrays. 
+
+np.add(array01.astype(np.float),array02)
+
+#4) Do element-wise product for the two arrays.
+
+array01.astype(np.float)*array02
+
+
+#5) Create a 6X6 identity matrix.
+
+identityM = np.eye(6,6)
+
+#6) Replace all elements on third row with value 5.
+
+identityM[2,]=5
+
+#7) Replace all elements that are not zero with value 6 using a boolean indexing #and slicing.
+
+identityM[identityM!=0]=6
+
+#8) Create an empty 3 dimensional array, arr3 with shape (2,3,4), and elements of #integer type. 
+
+array03=np.empty((2,3,4)), dtype=int
+
+#9) Display its number of dimensions, shape and type of each element. 
+
+array03.ndim
+array03.shape
+array03.dtype
+
+#10) Give the second element on the third dimension, from the second group on the #second dimension, from the first group on the first dimension the value 5.
+
+array03[0,1,1]=5
+
+#11) Generate an array of 20 uniformly distributed random numbers with values #between 0 and 1.
+
+rand20=numpy.random.random_sample(20)
+
+#12) Get the min, max, sum, mean, and standard deviation of the array in part 11.
+
+np.min(rand20)
+np.max(rand20)
+np.sum(rand20)
+np.mean(rand20)
+np.std(rand20)
+
+#13) Replace all elements less than 0.5 with 0 and all elements larger than 0.5 #with 1 in the array from part 11 using “where” function.
+
+roundedRand=np.where(rand20 > 0.5,1,0)
+
+#14) Sort the array in part 11.
+
+rand20.sort()
+
+#15) Find the unique values in the same array.
+
+np.unique(rand20)
+
+
+#InClass05_3
+
+#1) Go to quandl.com. Open an account. Go to the “Account Settings” and make note #of your API Key.
+
+#--API Key: nC6_WJtgMUngnbF9M22H
+
+#2) Go to https://github.com/quandl/Python. Click on “Download ZIP”. Unzip folder #and copy “setup.py” and “Quandl” folders into your local folder where you run #ipython. (EG: C:\Users\Denisa)
+
+#completed
+
+#3) Create a new ipython notebook, In5_3. Import pandas module. Import Quandl #module by “import Quandl”. Since we already have the required NumPy and Pandas #modules, it should 
+#work for you.
+
+import pandas
+import Quandl
+
+#4) Go to https://www.quandl.com/c/markets/bitcoin-data
+
+#completed
+
+#5) You will import data for Bitcoin exchange rates to USD on different venues: #Bitstamp, Bitfinex and LakeBTC. Go to: https://www.quandl.com/BCHARTS/BITSTAMPUSD
+#Click on “Python” Library on the right. The code you need to use to import data #will show up. Import only 2014 data to September30. Use your authentication key. #Example code:
+#bitstamp = Quandl.get("BITCOIN/BITSTAMPUSD", trim_start="2014-01-01", #trim_end="2014-09-
+#30", authtoken="2_mykey_T")
+#Import in separate DataFrames the data for Bitfinex and LakeBTC as well. 
+
+BitStampUSD = pandas.DataFrame(Quandl.get("BCHARTS/BITSTAMPUSD",
+	trim_start="2011-09-13", trim_end="2014-10-02", authtoken="kKiokuoxyTu6sg5d5zBL"))
+
+BitFinexUSD = pandas.DataFrame(Quandl.get("BCHARTS/BITFINEXUSD",
+	trim_start="2013-03-31", trim_end="2014-10-02", authtoken="kKiokuoxyTu6sg5d5zBL"))
+
+LakeUSD = pandas.DataFrame(Quandl.get("BCHARTS/LAKEUSD",
+	trim_start="2014-03-01", trim_end="2014-10-02",
+	authtoken="kKiokuoxyTu6sg5d5z"))
+
+#6) View your three created pandas data frames using df_name.head(). What are the #column names? What is the frequency of data (daily/weekly/yearly Bitcoin prices)? #Answer in comments
+
+BitStampUSD.head()
+BitFinexUSD.head()
+LakeUSD.head()
+
+#7) Create three objects ind1, ind2, and ind3 containing the index of each of the #created dataframes.
+
+ind1=BitStampUSD.index
+ind2=BitFinexUSD.index
+ind3=LakeUSD.index
+
+#8) Display ind1, ind2, ind3. How many elements are in each?
+
+ind1
+ind2
+ind3
+
+#9) Display the .values attribute of each of ind1, ind2, ind3. What type of object #is being displayed for each? What dtype is each element of the displayed object? #Answer with comments.
+
+ind1.values
+ind2.values
+ind3.values
+
+#10) Display the .columns attribute of each DataFrame. How many columns do we have #in each?
+
+BitStampUSD.columns
+BitFinexUSD.columns
+LakeUSD.columns
+
+#11) Drop the variable showing BTC volume from each dataframe using the .drop method.
+
+BitStampUSD.drop(['Volume (BTC)'], 1)
+BitFinexUSD.drop(['Volume (BTC)'], 1)
+LakeUSD.drop(['Volume (BTC)'], 1)
