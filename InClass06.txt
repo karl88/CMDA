@@ -1,0 +1,121 @@
+#Karl Meyer
+#10.13.2014
+#CMDA 3654
+#InClass06
+
+#InClass06_1
+
+
+import pandas as pd
+import json
+import requests
+
+#1) Download data from Scholar/Resources/Data/Ch06.
+
+#--complete
+
+#2) Create a new ipython notebook, Inclass6_1.
+
+#--complete
+
+#3) Import work_tab, work_comma, and last two 
+#  observations from stress2_1 file as pandas 
+#  DataFrames. If needed, manage data to display in 
+#  correct format as a pandas Data Frame.
+
+workTab = pd.read_table('work_tab.txt', sep='\t| ')
+workTab
+workComma = pd.read_table('work_comma.csv', sep=',')
+workComma
+stress = pd.read_table('stress2_1.txt', sep='s+|, ', names=['Last', 'First', 'i', 'j', 'k', 'l', 'm', 'D/I/S/N'], skiprows=19)
+stress
+
+#4) Use the github API to create a pandas data frame with 
+# 4 columns from the returned results. 
+
+r = requests.get('https://api.github.com/events')
+t = r.json()
+fields = ['id', 'type', 'public', 'created_at' ]
+git_DF = pd.DataFrame(t, columns=fields)
+git_DF
+
+#5) Save the DF from part 4 as a pickle. Load the pickle.
+
+git_DF.to_pickle('git_DF_pickle')
+pd.read_pickle('git_df_pickle')
+
+#6) Save the data in part 4 in HDF5 format. Access it.
+
+store = pd.HDFStore('git_data.h5')
+store['obj1'] = git_df
+store['obj1']
+
+
+
+#InClass06_2
+
+
+import pandas as pd
+import numpy as np
+import xlrd
+import datetime
+
+#1) Import your project data using one of the read_csv or read_table # methods for pandas.
+
+olympicsDT = pd.read_excel('OlympicAtheletes.xlsx', encoding = 'utf-8')
+
+
+#2) Describe your dataframe using.describe() method.
+
+olympicsDT.describe()
+
+#3) Choose one numeric variable and transform it into categorical, 
+# with 3-5 categories. 
+
+age_bins = [0, 15, 18, 24, 34, 60]
+olympicsDT['age_categorical'] = pd.cut(olympicsDT['Age'], age_bins)
+age_categorical = olympicsDT['age_categorical']
+
+#4) Get the frequencies for the categorical variable created in part 3.
+
+pd.value_counts(age_categorical)
+
+#5) Create an additional variable using mapping and using the 
+# categorical variable from part 3. Your map dictionary should have 
+# two elements.
+
+old = {'(0, 15]': 'adolescent', '(15, 18]' : 'Teen', '(18, 24]' : 'young-adult', '(24, 34]' : 'adult', '(34, 60]' : 'older'}
+olympicsDT['old'] = olympicsDT['age_categorical'].map(old)
+
+
+#6) Rename two columns in your data using .rename.
+
+olympicsDT = olympicsDT.rename(columns = {'age_categorical' : 'Age Range', 'old' : 'Age Group'})
+
+#7) Extract a 50% training set using cut random permutations of rows #(eg. If you have 101 rows in your dataframe, a 50% training set will # have about 51 rows).
+
+sample_1 = np.random.permutation(len(olympicsDT))
+train_1 = sample_1[0 : (len(sample_1)/2)]
+trainer_1 = olympicsDT.take(train_1)
+
+#8) Extract a second 50% training set.
+
+sample_2 = np.random.permutation(len(olympicsDT))
+train_2 = sample_2[0 : (len(sample_2))/2]
+trainer_2 = olympicsDT.take(train_2)
+
+#9) Combine the two training sets into a third dataframe.
+
+trainer = trainer_1.append(trainer_2)
+trainer_total_len = len(trainer)
+
+#10) Get rid of duplicate rows by using: 
+# dataframe_name.drop_duplicates(). What percentage of the rows you 
+# have left?
+
+trainer = trainer.drop_duplicates()
+trainer_small_len = len(trainer)
+percentage = np.float64(((trainer_small_len * 100) / 			trainer_total_len))
+print(percentage)
+
+#--70% of the rows left
