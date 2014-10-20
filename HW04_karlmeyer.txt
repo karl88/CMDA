@@ -1,0 +1,33 @@
+# HW04
+# Karl Meyer
+# CMDA 3654
+# 10.20.2014
+
+import pandas as pd
+import matplotlib.pylot as plt
+
+project = pd.read_csv('C:\Karl's Work\CMDA 3654\CollegeOffense.csv')
+project1 = pd.DataFrame(project)
+project1.describe()
+
+scatter = plt.scatter(project1.YDS, project1.PTS)
+plt.title("Scatterplot of Yards and Points")
+
+#scatterplot, to help us get a better idea of the shape of our data
+#for the yards and points
+
+scatter2 = plt.scatter(project1.PASS, project1.PTS)
+plt.title("Scatterplot of Pass yards and Points")
+
+#scatterplot, to help us get a better idea of the shape of our data
+#for the passing yards
+
+scatter3 = plt.scatter(project1.RUSH, project1.PTS)
+plt.title("Scatterplot of Rush yards and Points")
+
+#scatterplot, to help us get a better idea of the shape of our data
+#for the rushing yards
+
+project1.to_pickle('dframe_pickle')
+
+#project saved to a pickle
