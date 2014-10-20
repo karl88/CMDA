@@ -1,0 +1,150 @@
+#Karl Meyer
+#10.20.2014
+#CMDA 3654
+#InClass07
+
+# Inclass07_1
+#1) Create a new ipython notebook.
+#2) Use the data for your project as a panda dataframe.
+#3) For suitable variables, plot : 
+# 1. a histogram;
+# 2. a density plot;
+# 3. a bar chart; 
+# 4. a horizontal stacked bar chart with categories summing to 1;
+# 5. a scatterplot.
+#4) Save all figures as png in your working directory. Submit the # pngs with your in class assignment.
+
+#1.Create a new ipython notebook Inclass7_2.ipynb.
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+projectDF = pd.read_csv('cars93.csv', index_col = 0)
+projectDF
+
+#2. Download Medical.csv from scholar/Data and import it as a pandas # dataframe. You will train a linear classifier to separate diabetic # subjects (all subjects included in the dataset are diabetic) into
+# two classes of health literacy (how much they know about health) 
+# based on their age and measured average blood glucose.
+
+dens = projectDF['Price'].plot(kind = 'density')
+plt.title('density plot of the price variable')
+densFig = dens.get_figure()
+densFig.savefig('projectDensity.png')
+plt.clf()
+
+#3. Wrangle your data with pandas. Keep features “age” and “HgA1c”.
+# Create target variable literacy with levels 0=“low literacy” and 1= # “high literacy” based on the dataframe’s variable “literacy” with 
+# levels “low” and “high”.
+
+bar = projectDF['Passengers'].plot(kind = 'bar')
+plt.title('Bar graph of the passengers variable')
+barFig = bar.get_figure()
+barFig.savefig('projectBar.png')
+plt.clf()
+
+#4. Setup the numpy arrays X and y.
+
+barh = projectDF['Weight'].div(projectDF['Weight'].sum(1).astype(float), axis = 0).plot(kind = 'barh',stacked = True)
+plt.title('Horizontal bar chart with categories summing to 1 of the weight variable')
+barhFig = barh.get_figure()
+barhFig.savefig('projectBarHorizontal.png')
+plt.clf()
+
+#5. Take a 75% training set and a 25% testing set using the 
+# scikit-learn capabilities.
+#6. Scale your features.
+#7. Train the classifier. Write out the classifier’s equation.
+#8. What is the classifier’s accuracy on the training data?
+#9. What is the classifier’s accuracy on the test set?
+#10. What is the confusion matrix and what is the interpretation of 
+# each number in the matrix?
+#11. Comment on the quality of this classifier for this problem.
+
+scatter = projectDF.plot(kind = 'scatter', x='Price', y='Weight')
+plt.title('Scatter plot using the variables Price (x) and Weight(y)')
+scatterFig = scatter.get_figure()
+scatterFig.savefig('projectScatter.png')
+plt.clf()
+
+
+# Inclass07_2
+#1) Download the PCA notebook from Scholar Resources/Assignments.
+
+import numpy as np
+import pandas as pd
+import scipy as sp
+import matplotlib.pyplot as plt
+import sklearn as sk
+
+#2) Run the code to get the principal components, and create the 
+# scatterplot. Comment on what digits are easiest to separate 
+# and which one might be easily confounded, using only the 
+# information carried in the first two principal components.
+
+medicalDF = pd.read_csv('medical.csv')
+X = np.array(medicalDF[['Age','HgA1C']])
+literacyTypes = {'HIGH':1, 'LOW':0}
+y = np.array(medicalDF['A Literacy Category'].map(literacyTypes))
+from sklearn.cross_validation import train_test_split
+X_train, X_test, y_train, y_test = train_test_split(X,y, test_size=.25, random_state=33)
+from sklearn.preprocessing import StandardScaler
+scaler = StandardScaler().fit(X_train)
+X_train = scaler.transform(X_train)
+X_test = scaler.transform(X_test)
+from sklearn.linear_model import SGDClassifier
+clf = SGDClassifier()
+clf.fit(X_train, y_train)
+print clf.coef_
+print clf.intercept_
+#the equation was: 27.65 - 5.08968882 * x1 + 16.81823155 * x2 = 0
+
+
+#3) Modify the scatterplot code to visualize the last two principal 
+# components (8 and 9). Change the axes labels accordingly.
+#4) Comment on the ability of this new visualization to distinguish 
+# between images of digits. 
+
+from sklearn import metrics
+y_train_pred = clf.predict(X_train)
+print metrics.accuracy_score(y_train, y_train_pred)
+#->89.2% right
+
+y_pred = clf.predict(X_test)
+print metrics.accuracy_score(y_test, y_pred)
+print metrics.confusion_matrix(y_test, y_pred)
+#5) Save your version of notebook with all your comments and 
+# scatterplots and submit to Drop Box and GitHub, in addition to 
+# placing the .py download in your overall InClass7 assignment. 
+
+get_ipython().magic(u'pylab inline')
+import sklearn as sk
+import numpy as np
+import scipy as sp
+import pandas as pd
+import matplotlib.pyplot as plt
+#->2 : 0,1,4,6 are easily separated, while: 5,8, and 9 might be confounded
+
+
+#InClass07_3
+from sklearn.datasets import load_digits
+digits = load_digits()
+
+print digits.keys()
+digits.target_names
+X_digits, y_digits = digits.data, digits.target
+X_digits.shape
+from sklearn.decomposition import PCA
+estimator = PCA(n_components=10)
+X_pca = estimator.fit_transform(X_digits)
+X_pca.shape
+X_pca
+colors = ['black', 'blue', 'purple', 'yellow', 'white', 'red', 'lime', 'cyan', 'orange', 'gray']
+for i in xrange(len(colors)):
+    px = X_pca[:, 7][y_digits == i]
+    py = X_pca[:, 8][y_digits == i]
+    plt.scatter(px, py, c=colors[i])
+plt.legend(digits.target_names)
+plt.xlabel('Eighth Principal Component')
+plt.ylabel('Ninth Principal Component')
+
+#-> 4 : new graph contains points that are confounded, hard to decipher what is what
