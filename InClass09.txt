@@ -1,0 +1,170 @@
+################################################################################
+# Karl Meyer
+# 11.03.2014
+# CMDA 3654
+# InClassAssn09
+
+
+#InClassAssn09_1
+
+#1. Build a first logistic model using only SOM1, SOM2, SOM3, SOM4 and 
+# SOM5. What are the important features in this model? What is the 
+# interpretation of the SOM1 coefficient?
+
+getwd()
+setwd("C:\\User\\Karl's Work\\CMDA")
+load('fdata.RData')
+attach(final)
+model01 <- glm(disorder ~ som1 + som2 + som3 + som4 + som5, family = "binomial")
+model01
+
+#-The most important features of this model are: som1, som3, and som4.
+#-SOM1 is interpreted as 0.5215, which indicates that it is somewhat likely to # be able to predict the disorder
+
+#2. Build a second model using only SOM6, SOM7, SOM8, SOM9. What are 
+# the most important features in this model?
+
+model02 <- glm(disorder ~ som6 + som7 + som8 + som9, family = "binomial")
+model02
+
+#-The most important feature of this model is: som7
+
+#3. Build a third model using only SOM10, SOM11, SOM12, SOM13, SOM14. 
+# What are the most important features in this model?
+
+model03 <- glm(disorder ~ som10 + som11 + som12 + som13 + som14, family = "binomial")
+model03
+
+#-The most important feature of this model is: som12
+
+#4. Compare the three models. Which one is better at predicting the 
+# likelihood of the disorder? 
+
+#-It would seem that the first model contains the most information and also 
+# has the better prediction value, so it would be a better choice of the three # for this problem.
+
+
+################################################################################
+
+#InClassAssn09_2
+
+#1. Load your data
+
+getwd()
+setwd("C:\\User\\Karl's Work\\CMDA")
+load('fdata.RData')
+attach(final)
+head(final)
+
+#2. Split data into 90% training and 10% test sets using the method 
+# learned in Chapter 4 of Practical Data Science with R. Use the 
+# training set for parts 3-5. Use testing set for part 6 (to validate).
+
+final$gp <- runif(dim(final)[1])
+testSet <- subset(final, final$gp <= 0.1)
+trainSet <- subset(final, final$gp > 0.1)
+trainSet["gp"] <- NULL
+testSet["gp"] <- NULL
+rm(final)
+install.packages("MASS")
+library(MASS)
+attach(trainSet)
+
+#3. Fit the full linear regression model. Include as features, 
+# besides Som1-Som14, demographic features: age, gender, location, 
+# ethnicity, and coder. Your target variable (that you will be 
+# predicting) is SSC score.
+
+fit <- lm(disorder ~ som1 + som2 + som3 + som4 + som5 + som6 + som7 + som8 + som9 + som10 + som11 + som12 + som13 + som14 + age + gender + location + ethnicity + coder)
+
+#4. Apply stepwise regression. 
+
+step <- stepAIC(fit, direction = "both")
+step
+step$ssc
+rm(step)
+rm(fit)
+
+#5. Fit the model selected by the stepwise regression.
+
+fit1 <- lm(disorder ~ som1 + som2 + som3 + som4 + som5 + som6 + som7 + som8 + som9 + som10 + som11 + som12 + som13 + som14 + age + gender + location + ethnicity + coder)
+testSet$ssc_pred <- predict(fit1, newdata = testSet)
+head(testSet)
+rm(fit1)
+
+#6. Validate the model using the test set. (First predict SSC values, 
+# and then visualize using ggplot function with “predicted” along x 
+# axis and “actual” along y axis). Comment on how well the model 
+# predicts SSC scores.
+
+library(ggplot2)
+ggplot(data = testSet, aes(x = ssc_pred, y = ssc)) +
+  geom_point(color = "red")+
+  geom_line(aes(x = ssc, y = ssc), color = "blue")
+  
+#-This model is pretty accurate when predicting SSC scores.
+
+
+################################################################################
+
+#InClassAssn09_2
+
+#1. Use NatalRiskData from Scholar.
+
+getwd()
+setwd("C:\\User\\Karl's Work\\CMDA")
+load('NatalRiskData.Rdata')
+head(sdata)
+
+#2. Fit the logistic regression model demonstrated in your textbook, Page 
+# 157-161.
+
+train <- sdata[sdata$ORIGRANDGROUP<=5,]
+test <- sdata[sdata$ORIGRANDGROUP>5,]
+names(train)
+names(test)
+rm(sdata)
+complications <- c("ULD_MECO","ULD_PRECIP","ULD_BREECH")
+riskfactors <- c("URF_DIAB", "URF_CHYPER", "URF_PHYPER",
+                 "URF_ECLAM")
+
+#3. Implement all the steps from our LogisticClassifier example in class. Get # the density plot, confusion matrix and performance measures. 
+
+x <- c("PWGT",
+       "UPREVIS",
+       "CIG_REC",
+       "GESTREC3",
+       "DPLURAL",
+       complications,
+       riskfactors)
+y <- factor(train$atRisk)
+fmla <- paste("atRisk", paste(x, collapse="+"), sep="~")
+print(fmla)
+log_reg <- glm(fmla, data = train, family = "binomial")
+summary(log_reg)
+train$pred <- predict(log_reg, newdata = train, type = "response")
+head(train$pred)
+table(y)
+sum(train$pred)
+library(ggplot2)
+ggplot(train, aes(x=pred, color=atRisk, linetype=atRisk)) +
+  geom_density()
+test$pred <- predict(log_reg, newdata=test, type="response")
+head(test)
+summary(test$pred)
+ggplot(test, aes(x=pred, color=atRisk, linetype=atRisk)) +
+  geom_density()
+confusion.test <- table(pred = test$pred>0.02, target = test$atRisk)
+confusion.test
+accuracy <- (confusion.test[2,2] + confusion.test[1,1])/sum(confusion.test[,])
+accuracy    # 0.7935708
+precision <- confusion.test[2,2] / sum(confusion.test[2,])
+precision   # 0.04601349
+recall <- confusion.test[2,2] / sum(confusion.test[,2])
+recall      # 0.5550239
+
+#4. Change the Shiny app from class using NatalRiskData analysis.
+
+#-Completed.
+
+################################################################################
