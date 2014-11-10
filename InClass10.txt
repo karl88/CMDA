@@ -1,0 +1,123 @@
+#InClassAssn10
+#CMDA 3654
+#Karl Meyer
+#11.10.2014
+
+#InClass10_1
+
+#1. Open HierarchicalCluster.R from Scholar/Assignments.
+
+#completed.
+
+#2. Run the data(iris) code. You will have now the iris dataframe. Examine the 
+# “names” of the variables, the first 6 observations and the summaries of the 
+# variables. 
+
+data(iris)
+names(iris)
+head(iris)
+summary(iris)
+
+#3. Use the sepal length and width and petal length and width features to build 
+# hierarchical clusters.
+
+features <- iris[,1:4]
+scaled_features <- scale(features)
+summary(scaled_features)
+
+#4. Plot the dendogram.
+
+means <- attr(scaled_features,"scaled:center")
+print(means)
+stdv <- attr(scaled_features, "scaled:scale")
+print(stdv)
+distance <- dist(scaled_features, method = "euclidean")
+print(distance)
+?hclust
+hier_cl <- hclust(distance, method="ward.D")
+
+plot(hier_cl, labels=iris$Species)
+rect.hclust(hier_cl, k=3)
+
+#5. Separate 3 clusters and use the “Species” column from the original data to 
+# identify branches. They will overlap somewhat but you will still be able to # see.
+
+groups <- cutree(hier_cl, k = 3)
+print(groups)
+
+#6. Comment: what are the iris plants that seem to be mostly in first cluster? # How about the second cluster? How about the third cluster?
+
+# The dendogram plotted above has 3 clusters
+# Group 1 contains all Setosa species with no overlap and Group 2 
+# contains all Virginica species with no overlap. But, Group 03 has overlap, 
+# but mostly contains Versicolor species, and some Setosa and Virginica.
+
+################################################################################
+
+#InClass10_2
+
+#1. Open the R file with your Inclass10_1 assignment. Rename it to Inclass10_12.
+
+
+
+#2. Using the iris dataset, implement the kmeans algorithm now.
+
+kmeans_clusters <- kmeans(distance, 3 , nstart=100, iter.max=100)
+
+
+#3. Extract the cluster assignment for both the Hierarchical clustering, and the
+# kmeans algorithm.
+
+kmeans_clusters
+kmeans_clusters$cluster
+kmeans_clusters$centers
+kmeans_clusters$withinss
+kmeans_clusters$tot.withinss
+kmeans_clusters$betweenss
+kmeans_clusters$size
+
+#4. Create a data frame with: First column = “Species” column from the 
+# original dataset ; Second column = cluster assignments from Hierarchical 
+# Clustering algo; Third column = cluster assignments from kmeans algorithm 
+# assignments. Give proper names to the columns.
+
+compare <- cbind(groups,kmeans_clusters$cluster)
+compare <- as.data.frame(compare)
+names(compare) <- c("Hierarchical", "kmeans")
+compare <- cbind(iris$Species,compare)
+compare
+compare1 <- compare[order(compare$Hierarchical),]
+compare1
+compare2 <- compare[order(compare$kmeans),]
+compare2
+
+
+#5. Comment: how do the two algorithms fare? Are there any differences between # the two in terms of the iris plants assignments to three different clusters? # Are the clusters perfectly separated and mimicking the known Species 
+# separation?
+
+# Both did well on the Versicolor species--they created very tight clusters.
+
+# The kmeans algorithm seemed to be slightly more effective than the 
+# heirarchial algorithm, but both are not perfect.
+
+# Again, both effective, kmeans seems to be more accurate in more cases.
+
+################################################################################
+
+#InClass10_3
+
+#1. Modify the protein data clustering Shiny App to work with the iris data 
+# and visualize clusters.
+
+data(iris)
+names(iris)
+head(iris)
+summary(iris)
+library(shiny)
+runApp("App_3")
+names(iris)
+iris1 <- scale(iris[,-5])
+iris1 <- as.data.frame(iris1)
+names(iris1)
+label_points <- iris[,5]
+label_points
