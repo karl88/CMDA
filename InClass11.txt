@@ -1,0 +1,582 @@
+################################################################################
+# Karl Meyer     #
+# 11.17.2014     #
+# CMDA 3654      #
+# InClassAssn11  #
+################################################################################
+
+# InClassAssn11_1
+
+#1. Use mtcars R dataset provided by the: data(mtcars) command;
+
+data(mtcars)
+
+#2. Display the first 6 observations (head(mtcars)) and the variable names 
+# (names(mtcars));
+
+head(mtcars)
+names(mtcars)
+
+#3. Describe each variable in the dataset with a few words (data manual); you # can find that information by using the command ?mtcars;
+
+?mtcars
+
+#4. Classify cars into “automatic” vs “manual” transmission using a CART 
+# decision tree and the other variables as features; interpret the tree.
+
+mtcars$gp <- runif(dim(mtcars)[1])
+train <- subset(mtcars, mtcars$gp > 0.50)
+test <- subset(mtcars, mtcars$gp <= 0.50)
+
+head(train$am)  # 0 and 1 type variable: (0 = automatic, 1 = manual)
+head(test$am)   # 0 and 1 type variable: (0 = automatic, 1 = manual)
+
+train$response <- train$am > 0
+head(train$response)
+
+selectedVars = "mpg + cyl + disp + hp + drat + qsec + vs + gear + carb + gp"
+f <- paste('response ~ ', paste(selectedVars, collapse=' + '), sep=' ')
+f
+tmodel <- rpart(f, data=train, control=rpart.control(cp=0.01, minsplit=1, minbucket=1, maxdepth=5))
+tmodel
+
+#5. Plot the tree; what do you see?
+
+prp(tmodel)
+
+#6. Calculate the AUC (note: we are using the same data for training and 
+# calculating AUC).
+
+library(ROCR)
+train$pred <- predict(tmodel, newdata = train)
+eval <- prediction(train$pred, train$response)
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+plot(performance(eval, "tpr", "fpr"))
+fit <- rpart(mtcars$am~., data=mtcars)
+fit
+predictions <- predict(fit, mtcars, type="matrix")
+table(predictions, mtcars$am)
+prp(fit)
+
+################################################################################
+
+# InClassAssn11_2
+
+
+#1. Use mtcars R dataset provided by the: data(mtcars) command;
+
+data(mtcars)
+
+#2. Display the first 6 observations (head(mtcars)) and the variable names 
+# (names(mtcars));
+
+head(mtcars)
+names(mtcars)
+
+#3. Describe each variable in the dataset with a few words (data manual); you # can find that information by using the command ?mtcars;
+
+?mtcars
+
+#4. Train a knn, decision tree and logistic model on this data. Get 
+# predictions on the same training data.
+
+library(class)
+
+mtcars$gp <- runif(dim(mtcars)[1])
+train <- subset(mtcars, mtcars$gp > 0.25)
+test <- subset(mtcars, mtcars$gp <= 0.25)
+
+head(train$am)  # 0 and 1 type variable: (0 = automatic, 1 = manual)
+head(test$am)   # 0 and 1 type variable: (0 = automatic, 1 = manual)
+
+train$response <-train$am > 0
+head(train$response)
+
+system.time(knnDecision <- knn(train,train,train$response,k=20,prob=T))
+
+head(knnDecision)
+
+knnPred <- ifelse(knnDecision==TRUE,
+                  attributes(knnDecision)$prob,
+                  1-(attributes(knnDecision)$prob))
+head(knnPred)
+
+library(ROCR)
+
+eval <- prediction(knnPred, train$response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+f <- "response ~ mpg + cyl + disp + hp + drat + wt + qsec + vs + gear + carb + gp"
+
+system.time(gmodel <- glm(as.formula(f), data=train))
+
+log_predict <- predict(gmodel, newdata=train, type = "response")
+
+eval <- prediction(log_predict, train$response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+#5. Calculate and compare the AUC and system time for each algorithm. Which 
+# one does better? Do you run into any problems?
+
+library(rpart)
+
+system.time(tmodel <- rpart(f,data=train,
+                            control=rpart.control(cp=0.001,minsplit=10,
+                            minbucket=10,maxdepth=5)))
+							
+train$pred <- predict(tmodel, newdata = train)
+train$response <- train$am > 0
+
+eval <- prediction(train$pred, train$response) 
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+################################################################################
+
+# InClassAssn11_3
+
+
+#1. Use mtcars R dataset provided by the: data(mtcars) command;
+
+data(mtcars)
+
+#2. Display the first 6 observations (head(mtcars)) and the variable names 
+# (names(mtcars));
+
+head(mtcars)
+names(mtcars)
+
+#3. Describe each variable in the dataset with a few words (data manual); you # can find that information by using the command ?mtcars;
+
+?mtcars
+
+#4. Train a naïve Bayes algorithm on this data. Get predictions on the same 
+# training data.
+
+library(class)
+mtcars$gp <- runif(dim(mtcars)[1])
+train <- subset(mtcars, mtcars$gp > 0.25)
+test <- subset(mtcars, mtcars$gp <= 0.25)
+head(train$am)  # 0 and 1 type variable: (0 = automatic, 1 = manual)
+head(test$am)   # 0 and 1 type variable: (0 = automatic, 1 = manual)
+train$response <-train$am > 0
+head(train$response)
+
+#5. Calculate and the AUC and system time. Compare to the algos from Inclass2. # Which one does better? Do you run into any problems?
+
+system.time(knnDecision <- knn(train,train,train$response,k=20,prob=T))
+head(knnDecision)
+knnPred <- ifelse(knnDecision==TRUE,
+                  attributes(knnDecision)$prob,
+                  1-(attributes(knnDecision)$prob))
+head(knnPred)
+library(ROCR)
+eval <- prediction(knnPred, train$response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+f <- "response ~ mpg + cyl + disp + hp + drat + wt + qsec + vs + gear + carb + gp"
+
+system.time(gmodel <- glm(as.formula(f), data=train))
+
+log_predict <- predict(gmodel, newdata=train, type = "response")
+
+eval <- prediction(log_predict, train$response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+library(rpart)
+
+system.time(tmodel <- rpart(f,data=train,
+                            control=rpart.control(cp=0.001,minsplit=10,
+                                                  minbucket=10,maxdepth=5)))
+												  
+train$pred <- predict(tmodel, newdata = train)
+train$response <- train$am > 0
+
+eval <- prediction(train$pred, train$response) 
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+library(e1071)
+
+system.time(fit <- naiveBayes(as.formula(f), data=train))
+
+system.time(naivB_pred <- predict(fit, train, type = 'raw'))
+
+head(naivB_pred)
+
+
+eval <- prediction(naivB_pred[,2], train$response) 
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+#AUC Naive-Bayes did the best by far
+
+################################################################################
+################################################################################
+
+#NOTES::
+
+#Decision trees
+setwd('C:/Users/Denisa/Google Drive/Fall14/Data Analytics/Notes/week12/Lect33')
+load('KDD2009.Rdata')
+
+#package that builds decision trees
+install.packages('rpart')
+library(rpart)
+
+head(dTrain)
+names(dTrain)#training set
+
+#use Churn as the outcome
+head(dTrain$churn) # 1 and -1 type variable; 1 is pos outcome
+
+
+#Decision trees (CART: Classification and Regression Treess)
+
+
+#problems with Dec trees: too many features; categ features with too many levels;
+#too many missing values
+#do a preliminary feature selection and feature engineering
+
+
+#create a new response/classification category variable
+#with values 0/1 (False/True)
+
+dTrain$response <- dTrain$churn > 0
+head(dTrain$response)
+
+##using the previously selected features (through var selection methods)
+#shortcut to create formula
+
+f <- paste('response ~ ',paste(selVars,collapse=' + '),sep='')
+f
+tmodel <- rpart(f,data=dTrain,
+                control=rpart.control(cp=0.001,minsplit=1000,
+                                      minbucket=1000,maxdepth=5))
+tmodel
+
+?rpart #learn more
+?rpart.control #learn.more
+
+#to visualize tree
+install.packages("rpart.plot")
+library(rpart.plot)
+prp(tmodel)
+
+#another measure of performance :ROC curve and AUC
+
+# install.packages('ROCR') #only need to do this once
+library(ROCR)
+
+#using the same training data data
+#should do for at least one test set as well
+dTrain$pred <- predict(tmodel, newdata = dTrain)
+head(dTrain$pred)
+eval <- prediction(dTrain$pred, dTrain$response) #from ROCR package
+
+#calculate AUC
+
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values #special object; this is how we extract the exact AUC part
+#good AUC is close to 1; useless models have AUC of 0.5
+
+#plot ROC curve
+
+plot(performance(eval, "tpr", "fpr"))
+#when area under the curve AUC is maximum we have a good model
+
+#Example classification with decision trees and more than three categories example
+data(iris)
+# fit model
+fit <- rpart(Species~., data=iris)
+fit
+
+# make predictions (using the same training set; should also use at least one test set)
+predictions <- predict(fit, iris[,1:4], type="class")
+
+# summarize accuracy
+table(predictions, iris$Species)
+
+prp(fit)
+
+
+################################################################################
+#KNN
+setwd('/Users/Ryan/Workspace/VT/CMDA-3654/InClass/Lecture33')
+load('KDD2009.Rdata')
+
+#Use dTrain data for KDD Cup
+names(dTrain)
+#use Churn as the outcome
+head(dTrain$churn) # 1 and -1 type variable; 1 is pos outcome
+
+#use pre-selected 27 variables as features
+#previous data wrangling and variable selection 
+knnTrain <- dTrain[,selVars]
+names(knnTrain)
+
+#known classes in training set; 
+#change levels to 0=False=neg class and 1=TRUE=pos class
+response <- dTrain$churn > 0
+
+#examine features and classes to know our data
+head(response)
+head(knnTrain)
+dim(knnTrain)
+
+################kNN algo
+
+#package to implement kNN algo
+library(class)
+
+#use system.time function to time the training of the model
+system.time(knnDecision <- knn(knnTrain,knnTrain,response,k=200,prob=T))
+?knn #to learn more about the knn implementation
+
+#notice that response should not be part of the training set(knnTrain)
+#for knn training
+
+#the values of knnDecision are classifications
+head(knnDecision)
+
+#the "prob" argument returns, for each observation, the proportion of
+#votes for the winning class (pos or neg)
+#we want the predicted probabilities (which is p = probability(pos))
+#so we will use the "prob" attribute values
+#to get the p predictions
+
+
+knnPred <- ifelse(knnDecision==TRUE,
+                  attributes(knnDecision)$prob,
+                  1-(attributes(knnDecision)$prob))
+head(knnPred)
+
+#calculate AUC
+library(ROCR)
+eval <- prediction(knnPred, response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values #special object; this is how we extract the exact AUC part
+
+#################Logistic algo
+
+#compare to logistic regression AUC and system time
+f <- paste('response ~ ',paste(selVars,collapse=' + '),sep='') #create formula
+system.time(gmodel <- glm(as.formula(f),
+                          data=knnTrain,
+                          family=binomial(link='logit'))) #get system time and train the model
+
+log_predict <- predict(gmodel, 
+                       newdata=knnTrain, 
+                       type = "response") #get p predictions
+
+#get AUC for logistic model
+
+eval <- prediction(log_predict, response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values #special object; this is how we extract the exact AUC part
+
+#AUC = 73.75%
+
+########### CART algo #######################################################
+#train CART decision tree, get AUC and system time
+library(rpart)
+f <- paste('response ~ ',paste(selVars,collapse=' + '),sep='')
+system.time(tmodel <- rpart(f,data=dTrain,
+                control=rpart.control(cp=0.001,minsplit=1000,
+                                      minbucket=1000,maxdepth=5)))
+
+dTrain$pred <- predict(tmodel, newdata = dTrain)
+dTrain$response <- dTrain$churn > 0
+
+
+#calculate AUC for CART decision tree
+eval <- prediction(dTrain$pred, dTrain$response) 
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+# AUC = 69.07 
+
+################################################################################
+
+# 1. Use mtcars R dataset provided
+data(mtcars)
+
+# 2. Display the first 6 observations (head(mtcars)) and the variable names (names(mtcars));
+head(mtcars)
+names(mtcars)
+
+# 3. Describe each variable in the dataset with a few words (data manual)
+?mtcars
+
+#=================================================================================================
+# MTCars Data Manual :
+
+# Description
+# The data was extracted from the 1974 Motor Trend US magazine, and comprises fuel consumption 
+# and 10 aspects of automobile design and performance for 32 automobiles (1973–74 models).
+
+#   index:  var:  meaning:
+#   [, 1]   mpg    Miles/(US) gallon
+#   [, 2]    cyl	  Number of cylinders
+#   [, 3]	  disp  Displacement (cu.in.)
+#   [, 4]	  hp	  Gross horsepower
+#   [, 5]	  drat  Rear axle ratio
+#   [, 6]	  wt	  Weight (lb/1000)
+#   [, 7]	  qsec  1/4 mile time
+#   [, 8]	  vs	  V/S
+#   [, 9]	  am    Transmission (0 = automatic, 1 = manual)
+#   [,10]	  gear  Number of forward gears
+#   [,11]	  carb  Number of carburetors
+
+# Source:
+# Henderson and Velleman (1981), Building multiple regression models interactively. 
+# Biometrics, 37, 391–411.
+#==================================================================================================
+
+# 4. Train a knn, decision tree and logistic model on this data. 
+# Get predictions on the same training data.
+
+#package to implement kNN algo
+library(class)
+
+# create a random variable and use it to extract a 50% training and 50% test set
+mtcars$gp <- runif(dim(mtcars)[1])
+train <- subset(mtcars, mtcars$gp > 0.25)
+test <- subset(mtcars, mtcars$gp <= 0.25)
+
+head(train$am)  # 0 and 1 type variable: (0 = automatic, 1 = manual)
+head(test$am)   # 0 and 1 type variable: (0 = automatic, 1 = manual)
+
+# create the response variable in the training set
+train$response <-train$am > 0
+head(train$response)
+
+#============================== KNN Algorithm ====================================
+system.time(knnDecision <- knn(train,train,train$response,k=20,prob=T))
+
+# System Time for KNN Algorithm
+#    user  system elapsed 
+#   0.000   0.000   0.001 
+
+#the values of knnDecision are classifications
+head(knnDecision)
+
+#the "prob" argument returns, for each observation, the proportion of
+#votes for the winning class (pos or neg)
+#we want the predicted probabilities (which is p = probability(pos))
+#so we will use the "prob" attribute values
+#to get the p predictions
+knnPred <- ifelse(knnDecision==TRUE,
+                  attributes(knnDecision)$prob,
+                  1-(attributes(knnDecision)$prob))
+head(knnPred)
+
+# load the ROCR library
+library(ROCR)
+
+#calculate AUC
+eval <- prediction(knnPred, train$response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values #special object; this is how we extract the exact AUC part
+
+# KNN Algo
+# AUC = 77.4%
+
+#============================== Logistic Algorithm =========================================
+
+#compare to logistic regression AUC and system time
+f <- "response ~ mpg + cyl + disp + hp + drat + wt + qsec + vs + gear + carb + gp"
+
+#get system time and train the model
+system.time(gmodel <- glm(as.formula(f), data=train))
+
+# System time for Logistic algorithm
+#   user  system elapsed 
+#  0.004   0.000   0.003 
+
+#get p predictions
+log_predict <- predict(gmodel, newdata=train, type = "response")
+
+#get AUC for logistic model
+eval <- prediction(log_predict, train$response) #from ROCR package
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values #special object; this is how we extract the exact AUC part
+
+# Logistic Algo
+# AUC = 80.0%
+
+#==================================== CART Algorithm ==========================================
+#train CART decision tree, get AUC and system time
+
+# load the rpart library
+library(rpart)
+
+system.time(tmodel <- rpart(f,data=train,
+                            control=rpart.control(cp=0.001,minsplit=10,
+                                                  minbucket=10,maxdepth=5)))
+
+# System time for CART Algo
+#    user  system elapsed 
+#   0.006   0.001   0.006
+
+train$pred <- predict(tmodel, newdata = train)
+train$response <- train$am > 0
+
+#calculate AUC for CART decision tree
+eval <- prediction(train$pred, train$response) 
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+# AUC = 89.29%
+
+#============================== Naive Bayes Algorithm ==========================================
+
+#Package for Naive Bayes implementation
+library(e1071)
+
+#train model on selected variables from dTrain data set
+#train the model
+system.time(fit <- naiveBayes(as.formula(f), data=train))
+
+#make predictions
+system.time(naivB_pred <- predict(fit, train, type = 'raw'))
+
+# System time for Naive Bayes Algo
+# user  system elapsed
+# 0.011   0.000   0.012
+
+head(naivB_pred) #need just the "probability of TRUE" as prediction
+
+#calculate AUC for Naive Bayes
+#notice that second column from predictions denotes "p of pos"
+eval <- prediction(naivB_pred[,2], train$response) 
+auc_calc <- performance(eval,'auc')
+auc_calc@y.values
+
+# AUC = 99.21%
+
+#==========================================================================
+#                          Algorithm Comparison
+#==========================================================================
+
+#       KNN Algo : AUC = 74.0%          Logistic Algo : AUC = 80.0%   
+#         user  system elapsed          user  system elapsed              
+#       0.000    0.000   0.001         0.004   0.000   0.003
+#
+#       CART Algo : AUC = 89.29%        Naive Bayes Algo : AUC = 99.21%
+#          user  system elapsed         user  system elapsed  
+#         0.006   0.001   0.006        0.011   0.000   0.012
+
+#---------------------------------------------------------------------------
+#                             Conclusion
+#---------------------------------------------------------------------------
+# We can see the trade off that exists between time and accuracy, 
+# and as each algorithm successively performed better as the 
+# calculation time increased.
+
+
