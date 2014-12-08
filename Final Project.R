@@ -1,0 +1,7 @@
+setwd('C:\\Users\\Matthew\\Documents\\CMDA 3654 - Intro to Data Analytics and Visualization\\R\\Datasets')
+fbcleanr = read.table('fbclean.csv', sep=',', header=T)
+attach(fbcleanr)
+model <- lm(Winning.Percentage ~ YDSG + YDSAG + NETPUNT + PUNTRETAVG)
+summary(model)
+model2 <- lm(Winning.Percentage ~ P.YDSG + R.YDSG + YDSAG + NETPUNT + PUNTRETAVG)
+summary(model2)
